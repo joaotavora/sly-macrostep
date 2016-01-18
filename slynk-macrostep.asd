@@ -5,7 +5,9 @@
     :author "João Távora <https://github.com/capitaomorte>"
     :depends-on (#:slynk)
   :description "MACROSTEP support for Slynk"
-  :components ((:file "slynk-macrostep")))
+  :components ((:file "package")
+               (:file "collect-macro-forms")
+               (:file "slynk-macrostep")))
 
 ;; Local Variables:
 ;; coding: utf-8

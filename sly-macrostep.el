@@ -1,93 +1,136 @@
-;;; sly-macrostep.el --- Support named readtables in Common Lisp files  -*- lexical-binding: t; -*-
+;;; sly-macrostep.el -- fancy macro-expansion via macrostep.el
 ;;
 ;; Version: 0.1
 ;; URL: https://github.com/capitaomorte/sly-macrostep
 ;; Keywords: languages, lisp, sly
-;; Package-Requires: ((sly "1.0.0-beta2"))
-;; Author: João Távora <joaotavora@gmail.com>
-;; 
-;; Copyright (C) 2015 João Távora
+;; Package-Requires: ((sly "1.0.0-beta2")
+;;                    (macrostep))
 ;;
-;; This file is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation, either version 3 of the License, or
-;; (at your option) any later version.
+;; Authors: Luís Oliveira <luismbo@gmail.com>
+;;          Jon Oddie <j.j.oddie@gmail.com
+;;          João Távora <joaotavora@gmail.com>
 ;;
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
+;; License: GNU GPL (same license as Emacs)
+
+;;; Description:
 ;;
-;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; This is the SLY port of a contrib originally written for SLIME,
+;; with minimal changes, mostly "slime"->"sly" replacements.
 ;;
-;;; Commentary:
-;; 
-;; `sly-macrostep` is an external contrib for SLY that does nothing
-;; special, but acts like a template for writing other external
-;; contribs.
-;;
-;; See README.md
-;; 
+;; Fancier in-place macro-expansion using macrostep.el (originally
+;; written for Emacs Lisp).  To use, position point before the
+;; open-paren of the macro call in a SLY source or REPL buffer, and
+;; type `C-c M-e' or `M-x macrostep-expand'.  The pretty-printed
+;; result of `macroexpand-1' will be inserted inline in the current
+;; buffer, which is temporarily read-only while macro expansions are
+;; visible.  If the expansion is itself a macro call, expansion can be
+;; continued by typing `e'.  Expansions are collapsed to their
+;; original macro forms by typing `c' or `q'.  Other macro- and
+;; compiler-macro calls in the expansion will be font-locked
+;; differently, and point can be moved there quickly by typing `n' or
+;; `p'.  For more details, see the documentation of
+;; `macrostep-expand'.
+
 ;;; Code:
 
 (require 'sly)
+(require 'macrostep)
+(require 'cl-lib)
 
 (define-sly-contrib sly-macrostep
-  "Define the `sly-macrostep' contrib.
-Depends on the `slynk-macrostep' ASDF system Insinuates itself
-in `sly-editing-mode-hook', i.e. lisp files."
+  "Interactive macro expansion via macrostep.el."
+  (:authors "Luís Oliveira       <luismbo@gmail.com>"
+            "Jon Oddie           <j.j.oddie@gmail.com>")
+  (:license "GPL")
   (:slynk-dependencies slynk-macrostep)
-  (:on-load (add-hook 'sly-editing-mode-hook 'sly-macrostep-mode))
-  (:on-unload (remove-hook 'sly-editing-mode-hook 'sly-macrostep-mode)))
+  (:on-load
+   (easy-menu-add-item sly-mode-map '(menu-bar SLY Debugging)
+                       ["Macro stepper..." macrostep-expand (sly-connected-p)])
+   (add-hook 'sly-editing-mode-hook #'sly-macrostep-mode-hook)
+   (define-key sly-editing-mode-map (kbd "C-c M-e") #'macrostep-expand)
+   (eval-after-load 'sly-mrepl
+     '(progn
+       (add-hook 'sly-mrepl-mode-hook #'sly-macrostep-mode-hook)
+       (define-key sly-mrepl-mode-map (kbd "C-c M-e") #'macrostep-expand)))))
 
-(defvar sly-macrostep--last-reported-feature nil
-  "Internal variable for world-helloing purposes")
+(defun sly-macrostep-mode-hook ()
+  (setq macrostep-sexp-at-point-function #'sly-macrostep-sexp-at-point)
+  (setq macrostep-environment-at-point-function #'sly-macrostep-context)
+  (setq macrostep-expand-1-function #'sly-macrostep-expand-1)
+  (setq macrostep-print-function #'sly-macrostep-insert)
+  (setq macrostep-macro-form-p-function #'sly-macrostep-macro-form-p))
 
-(defun sly-macrostep ()
-  "Interactive command made available in lisp-editing files."
-  (interactive)
-  (let ((results (sly-eval '(slynk-macrostep:macrostep))))
-    (sly-message (first results))
-    (setq-local sly-macrostep--last-reported-feature (second results))))
+(defun sly-macrostep-sexp-at-point (&rest _ignore)
+  (sly-sexp-at-point))
 
-(define-minor-mode sly-macrostep-mode
-  "A minor mode active when the contrib is active."
-  nil nil nil
-  (cond (sly-macrostep-mode
-         (add-to-list 'sly-extra-mode-line-constructs
-                      'sly-macrostep--mode-line-construct
-                      t))
-        (t
-         (setq sly-extra-mode-line-constructs
-               (delq 'sly-macrostep--mode-line-construct
-                     sly-extra-mode-line-constructs)))))
+(defun sly-macrostep-context ()
+  (let (defun-start defun-end)
+    (save-excursion
+      (while
+          (condition-case nil
+              (progn (backward-up-list) t)
+            (scan-error nil)))
+      (setq defun-start (point))
+      (setq defun-end (scan-sexps (point) 1)))
+    (list (buffer-substring-no-properties
+           defun-start (point))
+          (buffer-substring-no-properties
+           (scan-sexps (point) 1) defun-end))))
 
-(defvar sly-macrostep-map
-  "A keymap accompanying `sly-macrostep-mode'."
-  (let ((map (make-sparse-keymap)))
-    (define-key sly-prefix-map (kbd "C-d C-w") 'sly-macrostep)
-    map))
+(defun sly-macrostep-expand-1 (string context)
+  (sly-dcase
+      (sly-eval
+       `(slynk-macrostep:macrostep-expand-1
+         ,string ,macrostep-expand-compiler-macros ',context))
+    ((:error error-message)
+     (error "%s" error-message))
+    ((:ok expansion positions)
+     (list expansion positions))))
 
-(defun sly-macrostep--mode-line-construct ()
-  "A little pretty indicator in the mode-line"
-  `(:propertize ,(cond (sly-macrostep--last-reported-feature
-                        (symbol-name sly-macrostep--last-reported-feature))
-                       (sly-macrostep-mode
-                        "hello world")
-                       (t
-                        "-"))
-                face hi-pink
-                mouse-face mode-line-highlight
-                help-echo ,(if sly-macrostep--last-reported-feature
-                               (format "Last reported MACROSTEP feature %s"
-                                       sly-macrostep--last-reported-feature)
-                             "No MACROSTEP features reported so far")))
+(defun sly-macrostep-insert (result _ignore)
+  "Insert RESULT at point, indenting to match the current column."
+  (cl-destructuring-bind (expansion positions) result
+    (let ((start (point))
+          (column-offset (current-column)))
+      (insert expansion)
+      (sly-macrostep--propertize-macros start positions)
+      (indent-rigidly start (point) column-offset))))
+
+(defun sly-macrostep--propertize-macros (start-offset positions)
+  "Put text properties on macro forms."
+  (dolist (position positions)
+    (cl-destructuring-bind (operator type start)
+        position
+      (let ((open-paren-position
+              (+ start-offset start)))
+        (put-text-property open-paren-position
+                           (1+ open-paren-position)
+                           'macrostep-macro-start
+                           t)
+        ;; this assumes that the operator starts right next to the
+        ;; opening parenthesis. We could probably be more robust.
+        (let ((op-start (1+ open-paren-position)))
+          (put-text-property op-start
+                             (+ op-start (length operator))
+                             'font-lock-face
+                             (if (eq type :macro)
+                                 'macrostep-macro-face
+                                 'macrostep-compiler-macro-face)))))))
+
+(defun sly-macrostep-macro-form-p (string context)
+  (sly-dcase
+      (sly-eval
+       `(slynk-macrostep:macro-form-p
+         ,string ,macrostep-expand-compiler-macros ',context))
+    ((:error error-message)
+     (error "%s" error-message))
+    ((:ok result)
+     result)))
+
+
 
 ;;; Automatically add ourselves to `sly-contribs' when this file is loaded
 ;;;###autoload
 (add-to-list 'sly-contribs 'sly-macrostep 'append)
 
 (provide 'sly-macrostep)
-;;; sly-macrostep.el ends here
-
