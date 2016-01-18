@@ -1,7 +1,7 @@
-;;; sly-hello-world.el --- Support named readtables in Common Lisp files  -*- lexical-binding: t; -*-
+;;; sly-macrostep.el --- Support named readtables in Common Lisp files  -*- lexical-binding: t; -*-
 ;;
 ;; Version: 0.1
-;; URL: https://github.com/capitaomorte/sly-hello-world
+;; URL: https://github.com/capitaomorte/sly-macrostep
 ;; Keywords: languages, lisp, sly
 ;; Package-Requires: ((sly "1.0.0-beta2"))
 ;; Author: João Távora <joaotavora@gmail.com>
@@ -23,7 +23,7 @@
 ;;
 ;;; Commentary:
 ;; 
-;; `sly-hello-world` is an external contrib for SLY that does nothing
+;; `sly-macrostep` is an external contrib for SLY that does nothing
 ;; special, but acts like a template for writing other external
 ;; contribs.
 ;;
@@ -33,61 +33,61 @@
 
 (require 'sly)
 
-(define-sly-contrib sly-hello-world
-  "Define the `sly-hello-world' contrib.
-Depends on the `slynk-hello-world' ASDF system Insinuates itself
+(define-sly-contrib sly-macrostep
+  "Define the `sly-macrostep' contrib.
+Depends on the `slynk-macrostep' ASDF system Insinuates itself
 in `sly-editing-mode-hook', i.e. lisp files."
-  (:slynk-dependencies slynk-hello-world)
-  (:on-load (add-hook 'sly-editing-mode-hook 'sly-hello-world-mode))
-  (:on-unload (remove-hook 'sly-editing-mode-hook 'sly-hello-world-mode)))
+  (:slynk-dependencies slynk-macrostep)
+  (:on-load (add-hook 'sly-editing-mode-hook 'sly-macrostep-mode))
+  (:on-unload (remove-hook 'sly-editing-mode-hook 'sly-macrostep-mode)))
 
-(defvar sly-hello-world--last-reported-feature nil
+(defvar sly-macrostep--last-reported-feature nil
   "Internal variable for world-helloing purposes")
 
-(defun sly-hello-world ()
+(defun sly-macrostep ()
   "Interactive command made available in lisp-editing files."
   (interactive)
-  (let ((results (sly-eval '(slynk-hello-world:hello-world))))
+  (let ((results (sly-eval '(slynk-macrostep:macrostep))))
     (sly-message (first results))
-    (setq-local sly-hello-world--last-reported-feature (second results))))
+    (setq-local sly-macrostep--last-reported-feature (second results))))
 
-(define-minor-mode sly-hello-world-mode
+(define-minor-mode sly-macrostep-mode
   "A minor mode active when the contrib is active."
   nil nil nil
-  (cond (sly-hello-world-mode
+  (cond (sly-macrostep-mode
          (add-to-list 'sly-extra-mode-line-constructs
-                      'sly-hello-world--mode-line-construct
+                      'sly-macrostep--mode-line-construct
                       t))
         (t
          (setq sly-extra-mode-line-constructs
-               (delq 'sly-hello-world--mode-line-construct
+               (delq 'sly-macrostep--mode-line-construct
                      sly-extra-mode-line-constructs)))))
 
-(defvar sly-hello-world-map
-  "A keymap accompanying `sly-hello-world-mode'."
+(defvar sly-macrostep-map
+  "A keymap accompanying `sly-macrostep-mode'."
   (let ((map (make-sparse-keymap)))
-    (define-key sly-prefix-map (kbd "C-d C-w") 'sly-hello-world)
+    (define-key sly-prefix-map (kbd "C-d C-w") 'sly-macrostep)
     map))
 
-(defun sly-hello-world--mode-line-construct ()
+(defun sly-macrostep--mode-line-construct ()
   "A little pretty indicator in the mode-line"
-  `(:propertize ,(cond (sly-hello-world--last-reported-feature
-                        (symbol-name sly-hello-world--last-reported-feature))
-                       (sly-hello-world-mode
+  `(:propertize ,(cond (sly-macrostep--last-reported-feature
+                        (symbol-name sly-macrostep--last-reported-feature))
+                       (sly-macrostep-mode
                         "hello world")
                        (t
                         "-"))
                 face hi-pink
                 mouse-face mode-line-highlight
-                help-echo ,(if sly-hello-world--last-reported-feature
-                               (format "Last reported HELLO-WORLD feature %s"
-                                       sly-hello-world--last-reported-feature)
-                             "No HELLO-WORLD features reported so far")))
+                help-echo ,(if sly-macrostep--last-reported-feature
+                               (format "Last reported MACROSTEP feature %s"
+                                       sly-macrostep--last-reported-feature)
+                             "No MACROSTEP features reported so far")))
 
 ;;; Automatically add ourselves to `sly-contribs' when this file is loaded
 ;;;###autoload
-(add-to-list 'sly-contribs 'sly-hello-world 'append)
+(add-to-list 'sly-contribs 'sly-macrostep 'append)
 
-(provide 'sly-hello-world)
-;;; sly-hello-world.el ends here
+(provide 'sly-macrostep)
+;;; sly-macrostep.el ends here
 

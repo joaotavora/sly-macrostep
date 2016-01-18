@@ -1,11 +1,11 @@
-(defpackage #:slynk-hello-world
+(defpackage #:slynk-macrostep
   (:use :cl #:slynk-api)
   (:export
-   #:hello-world))
-(in-package #:slynk-hello-world)
+   #:macrostep))
+(in-package #:slynk-macrostep)
 
-(defslyfun hello-world ()
-  "Provide hello-worldish functionality for the Emacs side of SLY"
+(defslyfun macrostep ()
+  "Provide macrostepish functionality for the Emacs side of SLY"
   (let ((random-feature (nth (random (length *features*)) *features*)))
     (list
      (format nil "Hello world, did you know your ~a supports ~a?"
@@ -23,4 +23,4 @@
 #+allegro
 (slynk-backend:defimplementation lisp-name () "ALLEGRO")
 
-(provide 'slynk-hello-world)
+(provide 'slynk-macrostep)
