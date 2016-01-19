@@ -18,7 +18,6 @@ install:
 script:
   - emacs -Q --batch
     -L ../sly -l ../sly/sly-autoloads.el
-    -L ../sly/contrib
     -L ../macrostep -l ../macrostep/macrostep.el
     -L .
     -l sly-macrostep-tests.el
