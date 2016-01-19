@@ -1,42 +1,18 @@
 [![MELPA](http://melpa.org/packages/sly-macrostep-badge.svg)](http://melpa.org/#/sly-macrostep)
 [![Build Status](https://travis-ci.org/capitaomorte/sly-macrostep.svg?branch=master)](https://travis-ci.org/capitaomorte/sly-macrostep)
 
-# Use this to write a [SLY][sly] contrib
+# [`macrostep`][1] support for SLY
 
-`sly-macrostep` is an external contrib for [SLY][sly] that does
-nothing useful in itself, but acts is a template for writing other
-external contribs.
+`sly-macrostep` is a [SLY][sly] contrib for expanding CL macros right
+inside the source file, like so:
 
-This example makes it easy to setup a SLY extension that:
+![animation](animation.gif)
 
-* is completely self-contained (doesn't need to be bundled with SLY)
+This extension is the work of [Jon Oddie](github.com/joddie), the
+original author of the excellent [`macrostep.el`][1] library, and
+[Luís Oliveira](github.com/luismbo).
 
-* has both Emacs-Lisp and Common-Lisp counterparts
-
-  See `sly-macrostep.el` and `slynk-macrostep.lisp`
-
-* has automated [Travis tests](https://travis-ci.org/capitaomorte/sly-macrostep) already in place
-
-  See the file `.travis.yml`. There are some sample unit tests for
-  this contrib using SBCL and CCL there.
-
-* is easily added to [MELPA](http://melpa.org)
-
-  Just ask make a
-  [pull request to MELPA](https://github.com/milkypostman/melpa/pulls)
-  and ask for your recipe to be added to `recipes/`. Use this template:
-
-```lisp
-(sly-macrostep :fetcher github
-                         :repo "capitaomorte/sly-macrostep"
-                         :files (:defaults
-                                 "*.lisp"
-                                 "*.asd"))
-```
-
-
-The remainder of this `README.md` file is itself a template for the
-one that should be included in a contrib.
+I just ported it to SLY with some minimal renaming and tweaks.
 
 ## Install from MELPA
 
@@ -44,11 +20,11 @@ Perform the [usual MELPA setup](http://melpa.org) and then select
 `sly-macrostep` for installation from the package menu or from `M-x
 package-install`.
 
-Once it's done, `M-x sly` should now bring up a macrostep enabled
+Once it's done, `M-x sly` should now bring up a macrostep-enabled
 SLY.
 
-In `.lisp` files you can now use `M-x sly-macrostep` to be informed
-about the macrostepness of your Lisp.
+In `.lisp` files you can now use `C-c M-e` or `M-x macrostep-expand`
+to expand a macro.
 
 ## Melpa-less install
 
@@ -74,8 +50,8 @@ of this automatically. So the following setup in your `~/.emacs` or
 In case you already have SLY loaded and running, you might have to
 `M-x sly-setup` and `M-x sly-enable-contrib` to enable it.
 
-`sly-macrostep` should now kick in in Lisp buffers.
 
+[1]: https://github.com/joddie/macrostep
 [sly]: https://github.com/capitaomorte/sly
 
 
