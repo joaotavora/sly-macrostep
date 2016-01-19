@@ -3,9 +3,7 @@
 ;; Version: 0.1
 ;; URL: https://github.com/capitaomorte/sly-macrostep
 ;; Keywords: languages, lisp, sly
-;; Package-Requires: ((sly "1.0.0-beta2")
-;;                    (macrostep))
-;;
+;; Package-Requires: ((sly "1.0.0-beta2") (macrostep "0.9"))
 ;; Authors: Luís Oliveira <luismbo@gmail.com>
 ;;          Jon Oddie <j.j.oddie@gmail.com
 ;;          João Távora <joaotavora@gmail.com>
