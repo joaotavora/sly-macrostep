@@ -1,15 +1,26 @@
-;;; sly-macrostep.el -- fancy macro-expansion via macrostep.el
+;;; sly-macrostep.el --- fancy macro-expansion via macrostep.el
 ;;
 ;; Version: 0.1
 ;; URL: https://github.com/capitaomorte/sly-macrostep
 ;; Keywords: languages, lisp, sly
 ;; Package-Requires: ((sly "1.0.0-beta2") (macrostep "0.9"))
-;; Authors: Luís Oliveira <luismbo@gmail.com>
-;;          Jon Oddie <j.j.oddie@gmail.com
-;;          João Távora <joaotavora@gmail.com>
+;; Authors: Luís Oliveira <luismbo@gmail.com>, Jon Oddie <j.j.oddie@gmail.com, João Távora <joaotavora@gmail.com>
 ;;
-;; License: GNU GPL (same license as Emacs)
-
+;; Copyright (C) 2016 the authors
+;; 
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;;
 ;;; Description:
 ;;
 ;; This is the SLY port of a contrib originally written for SLIME,
