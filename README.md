@@ -16,6 +16,9 @@ I just ported it to SLY with some minimal renaming and tweaks.
 
 ## Install from MELPA
 
+*MELPA availability is still pending at the moment, but should 
+become active soon*
+
 Perform the [usual MELPA setup](http://melpa.org) and then select
 `sly-macrostep` for installation from the package menu or from `M-x
 package-install`.
