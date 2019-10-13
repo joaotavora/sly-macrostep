@@ -9,7 +9,8 @@
 ;;;### (autoloads nil "sly-macrostep" "sly-macrostep.el" (0 0 0 0))
 ;;; Generated autoloads from sly-macrostep.el
 
-(add-to-list 'sly-contribs 'sly-macrostep 'append)
+(with-eval-after-load 'sly
+  (add-to-list 'sly-contribs 'sly-macrostep 'append))
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "sly-macrostep" '("sly-macrostep")))
 

@@ -140,7 +140,8 @@
 
 ;;; Automatically add ourselves to `sly-contribs' when this file is loaded
 ;;;###autoload
-(add-to-list 'sly-contribs 'sly-macrostep 'append)
+(with-eval-after-load 'sly
+  (add-to-list 'sly-contribs 'sly-macrostep 'append))
 
 (provide 'sly-macrostep)
 ;;; sly-macrostep.el ends here
