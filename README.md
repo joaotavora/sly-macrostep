@@ -43,6 +43,7 @@ of this automatically. So the following setup in your `~/.emacs` or
 (add-to-list 'load-path "/path/to/sly")
 (require 'sly-autoloads)
 
+(add-to-list 'load-path "/path/to/john-oddies-macrostep-library")
 (add-to-list 'load-path "/path/to/sly-macrostep")
 (require 'sly-macrostep-autoloads)
 ```
