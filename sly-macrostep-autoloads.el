@@ -22,6 +22,8 @@
 
 (if (fboundp 'register-definition-prefixes) (register-definition-prefixes "sly-macrostep-tests" '("sly-macrostep-")))
 
+(provide 'sly-macrostep-autoloads)
+
 ;;;***
 
 ;; Local Variables:
